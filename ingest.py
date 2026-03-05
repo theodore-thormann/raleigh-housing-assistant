@@ -150,6 +150,154 @@ def get_hud_data():
 
     return "\n\n".join(all_text)
 
+def get_financial_guidelines():
+    """Return financial guidelines and rules of thumb for rent vs. buy decisions"""
+    
+    guidelines = """
+FINANCIAL GUIDELINES FOR RENTING VS. BUYING IN RALEIGH-DURHAM (2026)
+
+DISCLAIMER: The following are general financial guidelines and rules of thumb for 
+educational purposes only. This is not personalized financial advice. Always consult 
+a licensed financial advisor before making major financial decisions.
+
+--- THE 28/36 RULE ---
+Spend no more than 28% of your gross monthly income on housing costs (mortgage or rent).
+Spend no more than 36% of your gross monthly income on total debt (housing + car + student loans).
+Example: $80,000 annual salary = $6,667/month gross income.
+Maximum recommended housing payment: $1,867/month.
+Maximum recommended total debt: $2,400/month.
+
+--- THE PRICE-TO-RENT RATIO ---
+Divide the home purchase price by the annual rent for a comparable home.
+Below 15: Buying generally makes more financial sense.
+Between 15 and 20: Could go either way depending on your situation.
+Above 20: Renting likely makes more financial sense.
+Raleigh's current price-to-rent ratio is approximately 18-20, making it borderline.
+Example: $440,000 home vs. $24,000/year rent ($2,000/month) = ratio of 18.3.
+
+--- THE BREAK-EVEN HORIZON ---
+Buying only makes financial sense if you plan to stay long enough to recoup closing costs.
+General rule: Plan to stay at least 5 years before buying.
+Closing costs in North Carolina typically run 2-5% of the purchase price.
+On a $440,000 Raleigh home, expect $8,800 to $22,000 in closing costs.
+Current break-even horizon in Raleigh is estimated at 6-7 years given current mortgage rates.
+
+--- THE 20% DOWN PAYMENT RULE ---
+Putting less than 20% down triggers PMI (Private Mortgage Insurance).
+PMI typically adds $100-200/month to your payment on a $440,000 home.
+First-time buyer programs in NC allow as little as 3-5% down.
+NC Housing Finance Agency offers down payment assistance for qualifying buyers.
+20% down on a $440,000 Raleigh home = $88,000 required upfront.
+
+--- THE EMERGENCY FUND RULE ---
+Have 3-6 months of living expenses saved BEFORE buying a home.
+This is separate from your down payment and closing costs.
+For a Raleigh household spending $4,000/month, that means $12,000-$24,000 in reserves.
+Buying without an emergency fund puts you at serious financial risk.
+
+--- THE 1% MAINTENANCE RULE ---
+Budget approximately 1% of your home's value per year for maintenance and repairs.
+On a $440,000 Raleigh home: $4,400/year or approximately $367/month.
+This is frequently overlooked when comparing mortgage payments to rent.
+True monthly cost of owning a $440,000 home at 7% mortgage rate (20% down):
+  - Principal + Interest: $2,340/month
+  - Property taxes (Wake County ~0.65%): $238/month
+  - Homeowner's insurance: ~$100/month
+  - Maintenance (1% rule): ~$367/month
+  - Total true cost: ~$3,045/month
+
+--- RALEIGH-DURHAM MARKET CONTEXT (2026) ---
+Raleigh median home price: approximately $440,000.
+Durham median home price: approximately $380,000.
+Current 30-year fixed mortgage rate: approximately 6.5-7%.
+To meet the 28% rule on a $440,000 Raleigh home: need ~$100,000+ gross annual income.
+Raleigh rent vs. buy break-even: approximately 6-7 years at current rates.
+Wake County property tax rate: approximately 0.65% of assessed value.
+Durham County property tax rate: approximately 1.08% of assessed value.
+
+--- WHEN RENTING MAKES MORE SENSE ---
+You plan to stay less than 5 years.
+Your price-to-rent ratio is above 20.
+You don't have 20% down plus closing costs plus emergency fund saved.
+Your housing costs would exceed 28% of gross income.
+You value flexibility for career or lifestyle changes.
+You don't want responsibility for maintenance and repairs.
+
+--- WHEN BUYING MAKES MORE SENSE ---
+You plan to stay 5+ years in the same area.
+You have 20% down payment plus closing costs saved.
+Your mortgage payment stays under 28% of gross income.
+You want to build equity and have stability.
+You're ready for the responsibilities of homeownership.
+Interest rates are favorable relative to rent costs.
+"""
+    print("✓ Loaded financial guidelines")
+    return guidelines
+
+def get_zillow_data():
+    """Parse Zillow CSV files for Raleigh/Durham ZIP code data"""
+    import csv
+
+    # ZIP codes mapped to neighborhoods
+    raleigh_zips = {
+        "27601": "Downtown Raleigh",
+        "27603": "Boylan Heights, South Raleigh",
+        "27605": "Five Points, Glenwood South",
+        "27607": "Cameron Village, West Raleigh",
+        "27609": "North Hills, North Raleigh",
+        "27612": "Northwest Raleigh",
+        "27701": "Downtown Durham",
+        "27703": "East Durham",
+        "27705": "Duke University area, Trinity Park",
+    }
+
+    all_text = []
+
+    # Process home values (ZHVI)
+    zhvi_file = "data/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+    if os.path.exists(zhvi_file):
+        print("  Processing Zillow home value data...")
+        with open(zhvi_file, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            # Get the last 12 month columns
+            fieldnames = reader.fieldnames
+            date_cols = [c for c in fieldnames if c.startswith("20")][-12:]
+
+            for row in reader:
+                zip_code = row["RegionName"]
+                if zip_code in raleigh_zips:
+                    neighborhood = raleigh_zips[zip_code]
+                    lines = [f"Zillow Home Values for ZIP {zip_code} ({neighborhood}):"]
+                    for date in date_cols:
+                        val = row.get(date, "")
+                        if val:
+                            lines.append(f"  {date}: ${float(val):,.0f}")
+                    all_text.append("\n".join(lines))
+                    print(f"  ✓ Home values: ZIP {zip_code} ({neighborhood})")
+
+    # Process rent index (ZORI)
+    zori_file = "data/Zip_zori_uc_sfrcondomfr_sm_month.csv"
+    if os.path.exists(zori_file):
+        print("  Processing Zillow rent data...")
+        with open(zori_file, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames
+            date_cols = [c for c in fieldnames if c.startswith("20")][-12:]
+
+            for row in reader:
+                zip_code = row["RegionName"]
+                if zip_code in raleigh_zips:
+                    neighborhood = raleigh_zips[zip_code]
+                    lines = [f"Zillow Observed Rent Index for ZIP {zip_code} ({neighborhood}):"]
+                    for date in date_cols:
+                        val = row.get(date, "")
+                        if val:
+                            lines.append(f"  {date}: ${float(val):,.0f}/month")
+                    all_text.append("\n".join(lines))
+                    print(f"  ✓ Rent index: ZIP {zip_code} ({neighborhood})")
+
+    return "\n\n".join(all_text)
+
 
 # ---- MAIN INGESTION PIPELINE ----
 
@@ -157,19 +305,19 @@ def fetch_all_documents():
     """Fetch all data sources and return as a list of text documents"""
     documents = []
 
-    print("\n[1/3] Fetching FRED housing market data...")
+    print("\n[1/5] Fetching FRED housing market data...")
     fred_text = get_fred_data()
     if fred_text:
         documents.append(fred_text)
         print("✓ FRED data added")
 
-    print("\n[2/3] Fetching HUD fair market rent data...")
+    print("\n[2/5] Fetching HUD fair market rent data...")
     hud_text = get_hud_data()
     if hud_text:
         documents.append(hud_text)
         print("✓ HUD data added")
 
-    print("\n[3/3] Fetching Wikipedia neighborhood data...")
+    print("\n[3/5] Fetching Wikipedia neighborhood data...")
     for topic in TOPICS:
         try:
             text = get_wikipedia_data(topic)
@@ -180,6 +328,18 @@ def fetch_all_documents():
         except Exception as e:
             print(f"  ✗ Failed: {topic} — {e}")
         time.sleep(1)  # small delay between requests
+
+    print("\n[4/5] Loading financial guidelines...")
+    financial_text = get_financial_guidelines()
+    if financial_text:
+        documents.append(financial_text)
+        print("✓ Financial guidelines added")
+
+    print("\n[5/5] Loading Zillow neighborhood data...")
+    zillow_text = get_zillow_data()
+    if zillow_text:
+        documents.append(zillow_text)
+        print("✓ Zillow data added")
 
     return documents
 
