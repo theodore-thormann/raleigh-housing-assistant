@@ -254,7 +254,7 @@ def get_zillow_data():
     all_text = []
 
     # Process home values (ZHVI)
-    zhvi_file = "data/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+    zhvi_file = "data/filtered_Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
     if os.path.exists(zhvi_file):
         print("  Processing Zillow home value data...")
         with open(zhvi_file, newline="", encoding="utf-8") as f:
@@ -276,7 +276,7 @@ def get_zillow_data():
                     print(f"  ✓ Home values: ZIP {zip_code} ({neighborhood})")
 
     # Process rent index (ZORI)
-    zori_file = "data/Zip_zori_uc_sfrcondomfr_sm_month.csv"
+    zori_file = "data/filtered_Zip_zori_uc_sfrcondomfr_sm_month.csv"
     if os.path.exists(zori_file):
         print("  Processing Zillow rent data...")
         with open(zori_file, newline="", encoding="utf-8") as f:
