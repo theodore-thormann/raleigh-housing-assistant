@@ -9,6 +9,12 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 
 load_dotenv()
 
+# Override with Streamlit secrets if available (for cloud deployment)
+if hasattr(st, "secrets"):
+    for key in ["GOOGLE_API_KEY", "FRED_API_KEY", "HUD_API_TOKEN"]:
+        if key in st.secrets:
+            os.environ[key] = st.secrets[key]
+
 # ---- PAGE CONFIG ----
 
 st.set_page_config(
