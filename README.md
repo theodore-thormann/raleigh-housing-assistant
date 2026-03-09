@@ -134,4 +134,4 @@ This tool provides general housing information and financial guidelines for educ
 
 ## Author
 
-Theodore Thormann — [GitHub](https://github.com/theodore-thormann) · [LinkedIn](your-linkedin-url)
+Theodore Thormann — [GitHub](https://github.com/theodore-thormann) · [LinkedIn](https://www.linkedin.com/in/theodore-thormann/)
